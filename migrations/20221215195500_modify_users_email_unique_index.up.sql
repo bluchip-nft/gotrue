@@ -12,5 +12,13 @@ create unique index if not exists users_email_partial_key on {{ index .Options "
 
 comment on index {{ index .Options "Namespace" }}.users_email_partial_key is 'Auth: A partial unique index that applies only when is_sso_user is false';
 
-alter table only {{ index .Options "Namespace" }}.users
-  drop constraint if exists users_email_key;
+DO $$
+DECLARE
+  alter table only {{ index .Options "Namespace" }}.users
+    drop constraint if exists users_email_key;
+EXCEPTION
+  WHEN OTHERS THEN
+    raise notice 'users_email_key does not exist';
+END;
+$$
+    
